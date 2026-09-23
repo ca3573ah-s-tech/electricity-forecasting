@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 
@@ -44,34 +43,18 @@ def estimate_ou_parameters(x, dt = 1):
         return kappa, mu, sigma
 
 
-if __name__ == "__main__":
-    np.random.seed(42)
+def simulate_ou_paths(x0,mu, kappa, sigma, n_steps, n_paths, dt=1.0):
+    paths = np.zeros((n_steps, n_paths))
+    paths[0, :] = x0
 
-    mu = 50
-
-    """ print("Mean:", x[1000:].mean())
-    print("Std:", x[1000:].std()) """
-
-    """ plt.plot(x)
-    plt.axhline(mu, linestyle="--", label="Long-run mean")
-    plt.xlabel("Time step")
-    plt.ylabel("X")
-    plt.title("Ornstein-Uhlenbeck simulation")
-    plt.legend()
-    plt.show() """
-
-    ##Now we can try to estimate the parameters, the discrete OU process is estimated as 
-    ##an AR(1) process.
-
-    x = simulate_ou(
-    x0=100,
-    mu=50,
-    kappa=0.1,
-    sigma=5,
-    n_steps=10000
-    )
-
-    print(estimate_ou_parameters(x))
-
-
+    for t in range(1, n_steps):
+        z = np.random.normal(0, 1, size=n_paths)
+    
+        mean = mu + np.exp(-kappa * dt) * (paths[t-1, :] - mu)
+    
+        std = sigma * np.sqrt((1 - np.exp(-2 * kappa * dt)) / (2 * kappa))
+    
+        paths[t, :] = mean + std * z
+    
+    return paths
 
